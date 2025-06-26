@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  web:
+    build: .
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+      - ~/caddy-certs:/home/admin/caddy-certs
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
