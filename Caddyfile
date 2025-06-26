@@ -1,10 +1,8 @@
-{
-  acme_ca https://acme-v02.api.letsencrypt.org/directory
-}
-
 www.ducolam.com {
   root * /usr/share/caddy
   file_server
   try_files {path} /index.html
-  encode gzip
+
+  # Tell Caddy to use the Cloudflare Origin Cert instead of ACME
+  tls /home/admin/caddy-certs/cert.pem /home/admin/caddy-certs/private-key.pem
 }
