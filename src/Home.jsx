@@ -37,7 +37,7 @@ export default function Home() {
 
         {/* Hero Section */}
         <section className="hero" id="home">
-          <h1 className="hero-title">Home Page</h1>
+          <h1 className="hero-title">Home</h1>
           <div className="hero-subheading">
               Driven Computer Science student at Delft University of Technology, with technical skills in both Front-End and Back-End development, proficient in languages such as Java, Python, and C#. Having strong communication skills and the ability to quickly grasp new concepts. Passionate about helping others, whether through collaboration or providing support, and enjoys connecting with new people. Enthusiastic about problem-solving and always eager to expand knowledge and skills.        </div>
           <button className="hero-btn" onClick={e => scrollToPlace(e.target.textContent)}>About Me</button>
@@ -52,7 +52,7 @@ export default function Home() {
               <div className="card-title">Event driven monitoring of Cloud AI workloads using Bills of Materials</div>
               <div className="card-body">Created a tool for event-driven dependency graph creation of software components inside of the internal infrastructure of TNO.</div>
             </div>
-            <div className="card">
+            {/* <div className="card">
               <img className="card-image" src="https://via.placeholder.com/405x240" alt="Project 2" />
               <div className="card-title">Project Two</div>
               <div className="card-body">Body text for whatever you’d like to expand on the main point.</div>
@@ -61,7 +61,7 @@ export default function Home() {
               <img className="card-image" src="https://via.placeholder.com/405x240" alt="Project 3" />
               <div className="card-title">Project Three</div>
               <div className="card-body">Body text for whatever you’d like to share more.</div>
-            </div>
+            </div> */}
           </div>
         </section>
 
@@ -83,10 +83,8 @@ export default function Home() {
           <div className="footer-section">
             <div className="footer-title">DucoLam.com</div>
             <div className="social-icons">
-              <a href="#" className="social-icon" aria-label="Facebook">F</a>
-              <a href="#" className="social-icon" aria-label="LinkedIn">L</a>
-              <a href="#" className="social-icon" aria-label="YouTube">Y</a>
-              <a href="#" className="social-icon" aria-label="Instagram">I</a>
+              <a href="https://www.linkedin.com/in/duco-lam-041387190/" className="social-icon" aria-label="LinkedIn">L</a>
+              <a href="https://x.com/EyesPog" className="social-icon" aria-label="X">X</a>
             </div>
           </div>
           <div className="footer-section">
