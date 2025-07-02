@@ -9,5 +9,8 @@ export default defineConfig({
     port: 80,
     host: true,
     allowedHosts: 'all',
+  },
+  build: {
+    target: 'es2015',
   }
 })
