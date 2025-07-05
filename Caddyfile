@@ -1,5 +1,13 @@
 www.ducolam.com {
   root * /usr/share/caddy
+
+  header /index.html {
+    Cache-Control "no-cache, no-store, must-revalidate"
+    Pragma "no-cache"
+    Expires "0"
+  }
+
   file_server
+
   tls /home/admin/caddy-certs/cert.pem /home/admin/caddy-certs/private-key.pem
 }
