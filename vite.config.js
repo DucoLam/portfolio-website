@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import legacy from '@vitejs/plugin-legacy'
 
 export default defineConfig({
-  base: '/',
+  base: '/portfolio-website/', // or '/' if served from root
   plugins: [
     react(),
     legacy({
@@ -18,4 +18,4 @@ export default defineConfig({
   build: {
     target: 'es2015',
   }
-})
+});
