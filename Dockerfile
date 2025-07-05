@@ -2,10 +2,8 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy everything into the container
 COPY . .
 
-# Always clean before install/build
 RUN rm -rf dist node_modules .vite && \
     npm install && \
     npm run build
@@ -13,8 +11,7 @@ RUN rm -rf dist node_modules .vite && \
 # Stage 2: Serve with Caddy
 FROM caddy:2.7.5-alpine
 
-# Copy Caddyfile into Caddy's config location
 COPY Caddyfile /etc/caddy/Caddyfile
 
-# Copy the build output from the builder stage
-COPY --from=builder /app/dist /usr/share/caddy
+# ✅ Corrected: Copy contents of dist/ to the web root
+COPY --from=builder /app/dist/ /usr/share/caddy/
