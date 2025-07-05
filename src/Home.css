@@ -10,8 +10,8 @@
 
 body {
   background: 
-    url('/src/assets/backgroundhills.png') no-repeat,
-    url('/src/assets/backgroundgrass.png') repeat;
+    url('src/assets/backgroundhills.png') no-repeat,
+    url('src/assets/backgroundgrass.png') repeat;
   background-size: 
     auto,
     auto;
