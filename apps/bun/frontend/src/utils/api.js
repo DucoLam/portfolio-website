@@ -33,4 +33,6 @@ export const api = {
   listMembers: () => request('/admin/members'),
 
   removeMember: (userId) => request(`/admin/members/${userId}`, { method: 'DELETE' }),
+
+  listEvents: () => request('/agenda/events'),
 }

@@ -13,7 +13,7 @@ jobs:
           cat > ~/Documents/portfolio-website/.env <<EOF
           POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
           SECRET_KEY=${{ secrets.SECRET_KEY }}
-          MEMBER_TOKEN=${{ secrets.MEMBER_TOKEN }}
+          ICS_URL=${{ secrets.ICS_URL }}
           EOF
 
       - name: Deploy

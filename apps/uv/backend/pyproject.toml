@@ -10,4 +10,5 @@ dependencies = [
     "alembic>=1.14.0",
     "bcrypt>=4.0.0",
     "pyjwt>=2.8.0",
+    "icalendar>=5.0.0",
 ]
