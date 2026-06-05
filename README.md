@@ -1,12 +1,45 @@
-# React + Vite
+# portfolio-website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Personal portfolio for [ducolam.com](https://ducolam.com).
 
-Currently, two official plugins are available:
+## Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```
+apps/
+  bun/frontend/    # React + Vite + Tailwind (Bun)
+  uv/backend/      # FastAPI (uv)
+```
 
-## Expanding the ESLint configuration
+## Frontend
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Requires [Bun](https://bun.sh).
+
+```bash
+cd apps/bun/frontend
+bun install
+bun dev
+```
+
+Runs at `http://localhost:5173`.
+
+## Backend
+
+Requires [uv](https://docs.astral.sh/uv).
+
+```bash
+cd apps/uv/backend
+uv sync
+uv run uvicorn src.main:app --reload
+```
+
+Runs at `http://localhost:8000`. Health check: `GET /api/health`.
+
+## Deploy
+
+The full stack runs via Docker Compose. Push to `main` and the self-hosted GitHub Actions runner on the server deploys automatically.
+
+To deploy manually:
+
+```bash
+docker compose up -d --build
+```
