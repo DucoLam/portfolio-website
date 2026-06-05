@@ -5,6 +5,18 @@ from sqlalchemy.orm import Mapped, mapped_column
 from .database import Base
 
 
+class Video(Base):
+    __tablename__ = "videos"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    youtube_id: Mapped[str] = mapped_column(String(20), nullable=False)
+    title: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    added_by_username: Mapped[str] = mapped_column(String(50), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now(), nullable=False
+    )
+
+
 class User(Base):
     __tablename__ = "users"
 

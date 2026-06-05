@@ -35,4 +35,10 @@ export const api = {
   removeMember: (userId) => request(`/admin/members/${userId}`, { method: 'DELETE' }),
 
   listEvents: () => request('/agenda/events'),
+
+  listVideos: () => request('/archief/videos'),
+
+  addVideo: (url) => request('/archief/videos', { method: 'POST', body: JSON.stringify({ url }) }),
+
+  deleteVideo: (videoId) => request(`/archief/videos/${videoId}`, { method: 'DELETE' }),
 }

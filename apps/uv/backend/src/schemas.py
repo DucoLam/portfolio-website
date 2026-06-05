@@ -35,3 +35,15 @@ class MemberResponse(BaseModel):
     id: int
     username: str
     created_at: datetime
+
+
+class VideoResponse(BaseModel):
+    id: int
+    youtube_id: str
+    title: Optional[str]
+    added_by_username: str
+    created_at: datetime
+
+
+class AddVideoRequest(BaseModel):
+    url: str

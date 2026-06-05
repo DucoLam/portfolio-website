@@ -8,7 +8,7 @@ export default function TigrisSilvaeFeed() {
 
   return (
     <main
-      className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center"
+      className="flex min-h-[calc(100vh-5rem)] items-center justify-center"
       style={{ fontFamily: iowanStack }}
     >
       <div className="flex flex-col items-center w-full max-w-sm px-6 sm:px-4 gap-5 text-center">
