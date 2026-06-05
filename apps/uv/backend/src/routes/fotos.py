@@ -88,6 +88,27 @@ def _fetch_photos() -> list:
         return _cache["photos"]  # serve stale on error
 
 
+@router.get("/albums")
+def get_albums(_: dict = Depends(get_current_user)):
+    """List all albums — use this to find the correct GOOGLE_ALBUM_ID."""
+    if not all([GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN]):
+        return []
+    try:
+        token = _access_token()
+        req = urllib.request.Request(
+            "https://photoslibrary.googleapis.com/v1/albums?pageSize=50",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            result = json.loads(resp.read())
+        return [
+            {"id": a["id"], "title": a.get("title", ""), "item_count": a.get("mediaItemsCount", "?")}
+            for a in result.get("albums", [])
+        ]
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @router.get("/photos")
 def get_photos(_: dict = Depends(get_current_user)):
     return _fetch_photos()

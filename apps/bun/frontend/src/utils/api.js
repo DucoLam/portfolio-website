@@ -42,5 +42,7 @@ export const api = {
 
   deleteVideo: (videoId) => request(`/archief/videos/${videoId}`, { method: 'DELETE' }),
 
+  listAlbums: () => request('/fotos/albums'),
+
   listPhotos: () => request('/fotos/photos'),
 }
