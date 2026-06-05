@@ -6,6 +6,8 @@ WORKDIR /app
 COPY pyproject.toml .
 RUN uv sync
 
+COPY alembic.ini .
+COPY migrations/ migrations/
 COPY src/ src/
 
-CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uv run alembic upgrade head && uv run uvicorn src.main:app --host 0.0.0.0 --port 8000"]
