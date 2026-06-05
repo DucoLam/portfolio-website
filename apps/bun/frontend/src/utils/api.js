@@ -9,8 +9,9 @@ async function request(path, options = {}) {
     },
     ...options,
   })
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.detail || 'Request failed')
+  const text = await res.text()
+  const data = text ? JSON.parse(text) : {}
+  if (!res.ok) throw new Error(data.detail || `Request failed (${res.status})`)
   return data
 }
 
