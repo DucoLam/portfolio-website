@@ -17,6 +17,7 @@ dist-ssr
 .venv
 __pycache__
 *.pyc
+uv.lock
 
 # Secrets
 .env
