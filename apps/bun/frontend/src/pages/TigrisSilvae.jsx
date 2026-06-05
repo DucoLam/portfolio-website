@@ -1,29 +1,30 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../utils/api'
 
 const iowanStack = '"Iowan Old Style", "Palatino Linotype", "URW Palladio L", P052, serif'
 const latoStack = "'Lato', sans-serif"
 
 export default function TigrisSilvae() {
+  const navigate = useNavigate()
   const [visible, setVisible] = useState(false)
   const [transitioned, setTransitioned] = useState(false)
+  const [fadingOut, setFadingOut] = useState(false)
   const [isNewMember, setIsNewMember] = useState(false)
-
-  // Auth state
-  const [user, setUser] = useState(null)        // { username, is_admin }
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [memberToken, setMemberToken] = useState('')
   const [authError, setAuthError] = useState('')
   const [authLoading, setAuthLoading] = useState(false)
 
-  // Admin state
-  const [tokens, setTokens] = useState([])
-  const [tokensLoading, setTokensLoading] = useState(false)
-  const [copied, setCopied] = useState(null)
-  const [members, setMembers] = useState([])
-  const [membersLoading, setMembersLoading] = useState(false)
-  const [removing, setRemoving] = useState(null)
+  // If already authenticated, skip straight to home
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) return
+    api.me()
+      .then(() => navigate('/tigris-silvae/home', { replace: true }))
+      .catch(() => localStorage.removeItem('token'))
+  }, [navigate])
 
   useEffect(() => {
     const t1 = setTimeout(() => setVisible(true), 80)
@@ -31,41 +32,9 @@ export default function TigrisSilvae() {
     return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [])
 
-  // Restore session on mount
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      api.me().then(setUser).catch(() => localStorage.removeItem('token'))
-    }
-  }, [])
-
-  const fetchTokens = useCallback(async () => {
-    setTokensLoading(true)
-    try { setTokens(await api.listTokens()) } finally { setTokensLoading(false) }
-  }, [])
-
-  const fetchMembers = useCallback(async () => {
-    setMembersLoading(true)
-    try { setMembers(await api.listMembers()) } finally { setMembersLoading(false) }
-  }, [])
-
-  useEffect(() => {
-    if (user?.is_admin) { fetchTokens(); fetchMembers() }
-  }, [user, fetchTokens, fetchMembers])
-
-  const handleRemoveMember = async (userId) => {
-    setRemoving(userId)
-    try {
-      await api.removeMember(userId)
-      setMembers(m => m.filter(u => u.id !== userId))
-      // Also clear any used_by on tokens display
-      setTokens(t => t.map(tk => tk.used_by_username
-        ? { ...tk, used_by_username: members.find(u => u.id === userId)?.username === tk.used_by_username ? null : tk.used_by_username }
-        : tk
-      ))
-    } finally {
-      setRemoving(null)
-    }
+  const goHome = () => {
+    setFadingOut(true)
+    setTimeout(() => navigate('/tigris-silvae/home'), 450)
   }
 
   const handleLogin = async () => {
@@ -74,10 +43,9 @@ export default function TigrisSilvae() {
     try {
       const { access_token } = await api.login(username, password)
       localStorage.setItem('token', access_token)
-      setUser(await api.me())
+      goHome()
     } catch (e) {
       setAuthError(e.message)
-    } finally {
       setAuthLoading(false)
     }
   }
@@ -88,34 +56,22 @@ export default function TigrisSilvae() {
     try {
       const { access_token } = await api.register(username, password, memberToken)
       localStorage.setItem('token', access_token)
-      setUser(await api.me())
+      goHome()
     } catch (e) {
       setAuthError(e.message)
-    } finally {
       setAuthLoading(false)
     }
-  }
-
-  const handleGenerateToken = async () => {
-    await api.generateToken()
-    fetchTokens()
-  }
-
-  const handleCopy = (token) => {
-    navigator.clipboard.writeText(token)
-    setCopied(token)
-    setTimeout(() => setCopied(null), 2000)
-  }
-
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    setUser(null)
   }
 
   return (
     <main
       className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: '#F8F6F1', fontFamily: iowanStack }}
+      style={{
+        backgroundColor: '#F8F6F1',
+        fontFamily: iowanStack,
+        opacity: fadingOut ? 0 : 1,
+        transition: 'opacity 0.4s ease',
+      }}
     >
       <div className="flex flex-col items-center w-full max-w-sm px-6 sm:px-4">
 
@@ -143,7 +99,7 @@ export default function TigrisSilvae() {
           Tigris Silvae
         </h1>
 
-        {/* Content area */}
+        {/* Login / Register form */}
         <div style={{
           opacity: transitioned ? 1 : 0,
           transition: 'opacity 0.6s ease 0.6s',
@@ -151,180 +107,87 @@ export default function TigrisSilvae() {
           fontFamily: latoStack,
           width: '100%',
         }}>
+          <div className="flex flex-col gap-5">
 
-          {/* ── Logged in ── */}
-          {user ? (
-            <div className="flex flex-col gap-6">
-              <p className="text-sm text-stone-500 text-center tracking-widest uppercase">
-                Welcome, {user.username}
-              </p>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-stone-400 tracking-widest uppercase">Username</label>
+              <input
+                type="text"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                className="border-b border-stone-300 bg-transparent py-2 text-stone-800 outline-none focus:border-stone-600 transition-colors"
+                placeholder="Enter your username"
+              />
+            </div>
 
-              {/* Admin panel */}
-              {user.is_admin && (
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-stone-400 tracking-widest uppercase">Member Tokens</span>
-                    <button
-                      onClick={handleGenerateToken}
-                      className="text-xs text-stone-500 border border-stone-300 px-3 py-1 hover:bg-stone-800 hover:text-stone-100 hover:border-stone-800 transition-colors tracking-widest uppercase"
-                    >
-                      Generate
-                    </button>
-                  </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-stone-400 tracking-widest uppercase">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && !isNewMember && handleLogin()}
+                className="border-b border-stone-300 bg-transparent py-2 text-stone-800 outline-none focus:border-stone-600 transition-colors"
+                placeholder="Enter your password"
+              />
+            </div>
 
-                  {tokensLoading ? (
-                    <p className="text-xs text-stone-400 text-center">Loading…</p>
-                  ) : tokens.length === 0 ? (
-                    <p className="text-xs text-stone-400 text-center">No tokens yet</p>
-                  ) : (
-                    <div className="flex flex-col gap-2">
-                      {tokens.map(t => (
-                        <div
-                          key={t.id}
-                          className="flex items-center justify-between gap-2 py-2 border-b border-stone-200"
-                        >
-                          <div className="flex flex-col min-w-0">
-                            <span className={`text-xs font-mono truncate ${t.used_by_username ? 'text-stone-300' : 'text-stone-700'}`}>
-                              {t.token}
-                            </span>
-                            {t.used_by_username && (
-                              <span className="text-xs text-stone-400">used by {t.used_by_username}</span>
-                            )}
-                          </div>
-                          {!t.used_by_username && (
-                            <button
-                              onClick={() => handleCopy(t.token)}
-                              className="shrink-0 text-xs text-stone-400 hover:text-stone-700 transition-colors tracking-widest uppercase"
-                            >
-                              {copied === t.token ? 'Copied' : 'Copy'}
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Members list */}
-              <div className="flex flex-col gap-4">
-                <span className="text-xs text-stone-400 tracking-widest uppercase">Members</span>
-
-                {membersLoading ? (
-                  <p className="text-xs text-stone-400 text-center">Loading…</p>
-                ) : members.length === 0 ? (
-                  <p className="text-xs text-stone-400 text-center">No members yet</p>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    {members.map(m => (
-                      <div
-                        key={m.id}
-                        className="flex items-center justify-between gap-2 py-2 border-b border-stone-200"
-                      >
-                        <span className="text-xs text-stone-700 tracking-wide">{m.username}</span>
-                        <button
-                          onClick={() => handleRemoveMember(m.id)}
-                          disabled={removing === m.id}
-                          className="shrink-0 text-xs text-stone-400 hover:text-red-400 transition-colors tracking-widest uppercase disabled:opacity-40"
-                        >
-                          {removing === m.id ? '…' : 'Remove'}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+            {/* Member Token — slides in when isNewMember */}
+            <div style={{
+              maxHeight: isNewMember ? '6rem' : 0,
+              opacity: isNewMember ? 1 : 0,
+              overflow: 'hidden',
+              transition: 'max-height 1.2s ease, opacity 1s ease 0.3s',
+            }}>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-stone-400 tracking-widest uppercase">Member Token</label>
+                <input
+                  type="text"
+                  value={memberToken}
+                  onChange={e => setMemberToken(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleRegister()}
+                  className="border-b border-stone-300 bg-transparent py-2 text-stone-800 outline-none focus:border-stone-600 transition-colors"
+                  placeholder="Enter your token"
+                />
               </div>
+            </div>
+
+            {authError && (
+              <p className="text-xs text-red-400 text-center tracking-wide">{authError}</p>
+            )}
+
+            <div
+              className="flex gap-3"
+              style={{
+                marginTop: isNewMember ? '0.5rem' : '0',
+                transition: 'margin-top 2s ease 0.3s',
+              }}
+            >
+              <button
+                onClick={handleLogin}
+                disabled={authLoading || isNewMember}
+                className="flex-1 py-3 border border-stone-400 text-stone-600 tracking-widest uppercase text-xs hover:bg-stone-800 hover:text-stone-100 hover:border-stone-800 transition-colors disabled:cursor-not-allowed"
+                style={{
+                  opacity: isNewMember ? 0 : 1,
+                  pointerEvents: isNewMember ? 'none' : 'auto',
+                  transition: 'opacity 0.3s ease, background-color 0.2s, color 0.2s, border-color 0.2s',
+                }}
+              >
+                {authLoading && !isNewMember ? '…' : 'Sign In'}
+              </button>
 
               <button
-                onClick={handleLogout}
-                className="py-2 text-xs text-stone-400 tracking-widest uppercase hover:text-stone-700 transition-colors"
+                onClick={isNewMember ? handleRegister : () => setIsNewMember(true)}
+                disabled={authLoading}
+                className="flex-1 py-3 border border-stone-300 text-stone-400 tracking-widest uppercase text-xs hover:bg-stone-700 hover:text-stone-100 hover:border-stone-700 transition-colors disabled:cursor-not-allowed"
               >
-                Sign Out
+                {authLoading && isNewMember ? '…' : 'New Member'}
               </button>
             </div>
 
-          ) : (
-            /* ── Login / Register form ── */
-            <div className="flex flex-col gap-5">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs text-stone-400 tracking-widest uppercase">Username</label>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  className="border-b border-stone-300 bg-transparent py-2 text-stone-800 outline-none focus:border-stone-600 transition-colors"
-                  placeholder="Enter your username"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-xs text-stone-400 tracking-widest uppercase">Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && !isNewMember && handleLogin()}
-                  className="border-b border-stone-300 bg-transparent py-2 text-stone-800 outline-none focus:border-stone-600 transition-colors"
-                  placeholder="Enter your password"
-                />
-              </div>
-
-              {/* Member Token */}
-              <div style={{
-                maxHeight: isNewMember ? '6rem' : 0,
-                opacity: isNewMember ? 1 : 0,
-                overflow: 'hidden',
-                transition: 'max-height 1.2s ease, opacity 1s ease 0.3s',
-              }}>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs text-stone-400 tracking-widest uppercase">Member Token</label>
-                  <input
-                    type="text"
-                    value={memberToken}
-                    onChange={e => setMemberToken(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleRegister()}
-                    className="border-b border-stone-300 bg-transparent py-2 text-stone-800 outline-none focus:border-stone-600 transition-colors"
-                    placeholder="Enter your token"
-                  />
-                </div>
-              </div>
-
-              {authError && (
-                <p className="text-xs text-red-400 text-center tracking-wide">{authError}</p>
-              )}
-
-              <div
-                className="flex gap-3"
-                style={{
-                  marginTop: isNewMember ? '0.5rem' : '0',
-                  transition: 'margin-top 2s ease 0.3s',
-                }}
-              >
-                <button
-                  onClick={handleLogin}
-                  disabled={authLoading || isNewMember}
-                  className="flex-1 py-3 border border-stone-400 text-stone-600 tracking-widest uppercase text-xs hover:bg-stone-800 hover:text-stone-100 hover:border-stone-800 transition-colors disabled:cursor-not-allowed"
-                  style={{
-                    opacity: isNewMember ? 0 : 1,
-                    pointerEvents: isNewMember ? 'none' : 'auto',
-                    transition: 'opacity 0.3s ease, background-color 0.2s, color 0.2s, border-color 0.2s',
-                  }}
-                >
-                  {authLoading && !isNewMember ? '…' : 'Sign In'}
-                </button>
-
-                <button
-                  onClick={isNewMember ? handleRegister : () => setIsNewMember(true)}
-                  disabled={authLoading}
-                  className="flex-1 py-3 border border-stone-300 text-stone-400 tracking-widest uppercase text-xs hover:bg-stone-700 hover:text-stone-100 hover:border-stone-700 transition-colors disabled:cursor-not-allowed"
-                >
-                  {authLoading && isNewMember ? '…' : 'New Member'}
-                </button>
-              </div>
-            </div>
-          )}
-
+          </div>
         </div>
+
       </div>
     </main>
   )

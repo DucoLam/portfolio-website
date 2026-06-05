@@ -28,6 +28,8 @@ export const api = {
 
   listTokens: () => request('/admin/tokens'),
 
+  deleteToken: (tokenId) => request(`/admin/tokens/${tokenId}`, { method: 'DELETE' }),
+
   listMembers: () => request('/admin/members'),
 
   removeMember: (userId) => request(`/admin/members/${userId}`, { method: 'DELETE' }),

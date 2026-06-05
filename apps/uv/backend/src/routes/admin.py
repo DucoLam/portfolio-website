@@ -54,6 +54,19 @@ def list_tokens(
     return out
 
 
+@router.delete("/tokens/{token_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_token(
+    token_id: int,
+    db: Session = Depends(get_db),
+    admin: dict = Depends(require_admin),
+):
+    token = db.scalar(select(MemberToken).where(MemberToken.id == token_id))
+    if not token:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Token not found")
+    db.delete(token)
+    db.commit()
+
+
 @router.get("/members", response_model=list[MemberResponse])
 def list_members(
     db: Session = Depends(get_db),

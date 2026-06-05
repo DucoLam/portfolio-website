@@ -27,9 +27,7 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
 
     user = User(username=body.username, password_hash=hash_password(body.password))
     db.add(user)
-    db.flush()
-
-    member_token.used_by = user.id
+    db.delete(member_token)
     db.commit()
 
     return TokenResponse(access_token=create_access_token(user.username, user.is_admin))
