@@ -41,4 +41,6 @@ export const api = {
   addVideo: (url) => request('/archief/videos', { method: 'POST', body: JSON.stringify({ url }) }),
 
   deleteVideo: (videoId) => request(`/archief/videos/${videoId}`, { method: 'DELETE' }),
+
+  listPhotos: () => request('/fotos/photos'),
 }

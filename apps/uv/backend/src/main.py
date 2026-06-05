@@ -4,6 +4,7 @@ from .routes.auth import router as auth_router
 from .routes.admin import router as admin_router
 from .routes.agenda import router as agenda_router
 from .routes.archief import router as archief_router
+from .routes.fotos import router as fotos_router
 
 app = FastAPI(title="Tigris Silvae API")
 
@@ -18,6 +19,7 @@ app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(agenda_router)
 app.include_router(archief_router)
+app.include_router(fotos_router)
 
 
 @app.get("/api/health")
