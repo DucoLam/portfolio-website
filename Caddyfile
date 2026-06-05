@@ -1,4 +1,4 @@
-www.ducolam.com {
+ducolam.com www.ducolam.com {
   root * /usr/share/caddy
   file_server
   try_files {path} /index.html
