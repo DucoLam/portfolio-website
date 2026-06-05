@@ -27,4 +27,8 @@ export const api = {
   generateToken: () => request('/admin/tokens', { method: 'POST' }),
 
   listTokens: () => request('/admin/tokens'),
+
+  listMembers: () => request('/admin/members'),
+
+  removeMember: (userId) => request(`/admin/members/${userId}`, { method: 'DELETE' }),
 }

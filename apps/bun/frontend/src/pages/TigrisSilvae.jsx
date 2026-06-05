@@ -21,6 +21,9 @@ export default function TigrisSilvae() {
   const [tokens, setTokens] = useState([])
   const [tokensLoading, setTokensLoading] = useState(false)
   const [copied, setCopied] = useState(null)
+  const [members, setMembers] = useState([])
+  const [membersLoading, setMembersLoading] = useState(false)
+  const [removing, setRemoving] = useState(null)
 
   useEffect(() => {
     const t1 = setTimeout(() => setVisible(true), 80)
@@ -38,16 +41,32 @@ export default function TigrisSilvae() {
 
   const fetchTokens = useCallback(async () => {
     setTokensLoading(true)
-    try {
-      setTokens(await api.listTokens())
-    } finally {
-      setTokensLoading(false)
-    }
+    try { setTokens(await api.listTokens()) } finally { setTokensLoading(false) }
+  }, [])
+
+  const fetchMembers = useCallback(async () => {
+    setMembersLoading(true)
+    try { setMembers(await api.listMembers()) } finally { setMembersLoading(false) }
   }, [])
 
   useEffect(() => {
-    if (user?.is_admin) fetchTokens()
-  }, [user, fetchTokens])
+    if (user?.is_admin) { fetchTokens(); fetchMembers() }
+  }, [user, fetchTokens, fetchMembers])
+
+  const handleRemoveMember = async (userId) => {
+    setRemoving(userId)
+    try {
+      await api.removeMember(userId)
+      setMembers(m => m.filter(u => u.id !== userId))
+      // Also clear any used_by on tokens display
+      setTokens(t => t.map(tk => tk.used_by_username
+        ? { ...tk, used_by_username: members.find(u => u.id === userId)?.username === tk.used_by_username ? null : tk.used_by_username }
+        : tk
+      ))
+    } finally {
+      setRemoving(null)
+    }
+  }
 
   const handleLogin = async () => {
     setAuthError('')
@@ -98,23 +117,23 @@ export default function TigrisSilvae() {
       className="flex min-h-screen items-center justify-center"
       style={{ backgroundColor: '#F8F6F1', fontFamily: iowanStack }}
     >
-      <div className="flex flex-col items-center w-full max-w-sm">
+      <div className="flex flex-col items-center w-full max-w-sm px-6 sm:px-4">
 
         {/* Welkom bij */}
         <div style={{
           opacity: visible && !transitioned ? 1 : 0,
-          maxHeight: transitioned ? 0 : '8rem',
+          maxHeight: transitioned ? 0 : '5rem',
           overflow: 'hidden',
           transition: 'opacity 0.7s ease, max-height 0.9s ease 0.3s',
         }}>
-          <p className="text-5xl font-normal text-stone-500 text-center tracking-widest mb-3">
+          <p className="text-3xl sm:text-5xl font-normal text-stone-500 text-center tracking-widest mb-3">
             Welkom bij
           </p>
         </div>
 
         {/* Tigris Silvae */}
         <h1
-          className="text-8xl font-normal tracking-wide text-stone-800 text-center whitespace-nowrap"
+          className="text-4xl sm:text-6xl md:text-8xl font-normal tracking-wide text-stone-800 text-center whitespace-nowrap"
           style={{
             opacity: visible ? 1 : 0,
             marginBottom: transitioned ? '2.5rem' : '0',
@@ -186,6 +205,35 @@ export default function TigrisSilvae() {
                   )}
                 </div>
               )}
+
+              {/* Members list */}
+              <div className="flex flex-col gap-4">
+                <span className="text-xs text-stone-400 tracking-widest uppercase">Members</span>
+
+                {membersLoading ? (
+                  <p className="text-xs text-stone-400 text-center">Loading…</p>
+                ) : members.length === 0 ? (
+                  <p className="text-xs text-stone-400 text-center">No members yet</p>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    {members.map(m => (
+                      <div
+                        key={m.id}
+                        className="flex items-center justify-between gap-2 py-2 border-b border-stone-200"
+                      >
+                        <span className="text-xs text-stone-700 tracking-wide">{m.username}</span>
+                        <button
+                          onClick={() => handleRemoveMember(m.id)}
+                          disabled={removing === m.id}
+                          className="shrink-0 text-xs text-stone-400 hover:text-red-400 transition-colors tracking-widest uppercase disabled:opacity-40"
+                        >
+                          {removing === m.id ? '…' : 'Remove'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <button
                 onClick={handleLogout}

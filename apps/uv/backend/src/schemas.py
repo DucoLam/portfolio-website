@@ -29,3 +29,9 @@ class MemberTokenResponse(BaseModel):
     token: str
     used_by_username: Optional[str]
     created_at: datetime
+
+
+class MemberResponse(BaseModel):
+    id: int
+    username: str
+    created_at: datetime
