@@ -27,7 +27,7 @@ export default function TigrisSilvae() {
 
   useEffect(() => {
     const t1 = setTimeout(() => setVisible(true), 80)
-    const t2 = setTimeout(() => setTransitioned(true), 2600)
+    const t2 = setTimeout(() => setTransitioned(true), 1800)
     return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [])
 
