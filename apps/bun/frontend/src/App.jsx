@@ -1,12 +1,12 @@
 import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home.jsx'
-import TrigisSilvae from './pages/TrigisSilvae.jsx'
+import TigrisSilvae from './pages/TigrisSilvae.jsx'
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/trigis-silvae" element={<TrigisSilvae />} />
+      <Route path="/tigris-silvae" element={<TigrisSilvae />} />
     </Routes>
   )
 }
