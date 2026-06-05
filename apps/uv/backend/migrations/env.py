@@ -15,7 +15,7 @@ config.set_main_option(
     "sqlalchemy.url",
     os.environ.get(
         "DATABASE_URL",
-        "postgresql+psycopg2://tigris:changeme@localhost:5432/tigris_silvae",
+        "postgresql+pg8000://tigris:changeme@localhost:5432/tigris_silvae",
     ),
 )
 
