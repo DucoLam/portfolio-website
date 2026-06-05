@@ -20,4 +20,5 @@ jobs:
         run: |
           cd ~/Documents/portfolio-website
           git pull origin main
-          docker compose up -d --build
+          docker compose build --build-arg CACHE_BUST=$(git rev-parse HEAD)
+          docker compose up -d --force-recreate

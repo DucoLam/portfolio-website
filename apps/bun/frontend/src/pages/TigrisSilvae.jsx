@@ -5,6 +5,7 @@ const iowanStack = '"Iowan Old Style", "Palatino Linotype", "URW Palladio L", P0
 const latoStack = "'Lato', sans-serif"
 
 export default function TigrisSilvae() {
+  const [visible, setVisible] = useState(false)
   const [transitioned, setTransitioned] = useState(false)
   const [isNewMember, setIsNewMember] = useState(false)
 
@@ -22,8 +23,9 @@ export default function TigrisSilvae() {
   const [copied, setCopied] = useState(null)
 
   useEffect(() => {
-    const t = setTimeout(() => setTransitioned(true), 1200)
-    return () => clearTimeout(t)
+    const t1 = setTimeout(() => setVisible(true), 80)
+    const t2 = setTimeout(() => setTransitioned(true), 2600)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [])
 
   // Restore session on mount
@@ -100,10 +102,10 @@ export default function TigrisSilvae() {
 
         {/* Welkom bij */}
         <div style={{
-          opacity: transitioned ? 0 : 1,
+          opacity: visible && !transitioned ? 1 : 0,
           maxHeight: transitioned ? 0 : '8rem',
           overflow: 'hidden',
-          transition: 'opacity 0.5s ease, max-height 0.9s ease 0.3s',
+          transition: 'opacity 0.7s ease, max-height 0.9s ease 0.3s',
         }}>
           <p className="text-5xl font-normal text-stone-500 text-center tracking-widest mb-3">
             Welkom bij
@@ -114,8 +116,9 @@ export default function TigrisSilvae() {
         <h1
           className="text-8xl font-normal tracking-wide text-stone-800 text-center whitespace-nowrap"
           style={{
+            opacity: visible ? 1 : 0,
             marginBottom: transitioned ? '2.5rem' : '0',
-            transition: 'margin-bottom 0.9s ease 0.3s',
+            transition: 'opacity 0.8s ease 0.15s, margin-bottom 0.9s ease 0.3s',
           }}
         >
           Tigris Silvae
