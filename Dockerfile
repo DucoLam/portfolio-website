@@ -1,14 +1,8 @@
-# Stage 1: Build the React app
-FROM node:20-alpine AS builder
+FROM oven/bun:1 AS builder
 WORKDIR /app
-COPY . .
-RUN npm install && npm run build
+COPY apps/bun/frontend/ .
+RUN bun install && bun run build
 
-# Stage 2: Serve with Caddy
 FROM caddy:2.7.5-alpine
-
-# Copy Caddyfile into Caddy's config location
 COPY Caddyfile /etc/caddy/Caddyfile
-
-# Copy the build output from the builder stage
 COPY --from=builder /app/dist /usr/share/caddy

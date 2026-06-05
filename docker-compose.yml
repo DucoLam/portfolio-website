@@ -1,7 +1,8 @@
-version: '3.8'
 services:
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "80:80"
       - "443:443"
@@ -9,6 +10,16 @@ services:
       - caddy_data:/data
       - caddy_config:/config
       - ~/caddy-certs:/home/admin/caddy-certs
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: apps/uv/backend
+      dockerfile: Dockerfile
+    expose:
+      - "8000"
     restart: unless-stopped
 
 volumes:
