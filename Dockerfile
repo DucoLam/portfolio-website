@@ -1,7 +1,7 @@
-FROM oven/bun:1 AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 COPY apps/bun/frontend/ .
-RUN bun install && bun run build
+RUN npm install && npm run build
 
 FROM caddy:2.7.5-alpine
 COPY Caddyfile /etc/caddy/Caddyfile
