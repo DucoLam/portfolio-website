@@ -8,11 +8,13 @@ import TigrisSilvaeFeed from './pages/TigrisSilvaeFeed.jsx'
 import TigrisSilvaeLeaderboard from './pages/TigrisSilvaeLeaderboard.jsx'
 import TigrisSilvaeArchief from './pages/TigrisSilvaeArchief.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
+import ILoveLailaa from './pages/ILoveLailaa.jsx'
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/ilovelailaa" element={<ILoveLailaa />} />
       <Route path="/tigris-silvae" element={<TigrisSilvae />} />
 
       {/* Authenticated area — shared layout with topbar */}
