@@ -9,12 +9,14 @@ import TigrisSilvaeLeaderboard from './pages/TigrisSilvaeLeaderboard.jsx'
 import TigrisSilvaeArchief from './pages/TigrisSilvaeArchief.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
 import ILoveLailaa from './pages/ILoveLailaa.jsx'
+import Kiss from './pages/Kiss.jsx'
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/ilovelailaa" element={<ILoveLailaa />} />
+      <Route path="/ilovelailaa/kiss" element={<Kiss />} />
       <Route path="/tigris-silvae" element={<TigrisSilvae />} />
 
       {/* Authenticated area — shared layout with topbar */}
