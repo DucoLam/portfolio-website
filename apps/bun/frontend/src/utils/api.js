@@ -45,4 +45,34 @@ export const api = {
   listAlbums: () => request('/fotos/albums'),
 
   listPhotos: () => request('/fotos/photos'),
+
+  // ── Courses ──
+  listCourses: () => request('/courses'),
+
+  getCourse: (id) => request(`/courses/${id}`),
+
+  createCourse: (name, holes) =>
+    request('/courses', { method: 'POST', body: JSON.stringify({ name, holes }) }),
+
+  deleteCourse: (id) => request(`/courses/${id}`, { method: 'DELETE' }),
+
+  listPlayers: () => request('/players'),
+
+  // ── Rounds ──
+  submitRound: (payload) =>
+    request('/rounds', { method: 'POST', body: JSON.stringify(payload) }),
+
+  myRounds: () => request('/rounds/mine'),
+
+  pendingRounds: () => request('/rounds/pending'),
+
+  attestRound: (id, action) =>
+    request(`/rounds/${id}/attest`, { method: 'POST', body: JSON.stringify({ action }) }),
+
+  // ── Leaderboard ──
+  leaderboard: (metric, scope = 'season', course) => {
+    const params = new URLSearchParams({ metric, scope })
+    if (course) params.set('course', course)
+    return request(`/leaderboard?${params.toString()}`)
+  },
 }

@@ -43,5 +43,10 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
 
 
 @router.get("/me", response_model=MeResponse)
-def me(current_user: dict = Depends(get_current_user)):
-    return MeResponse(username=current_user["sub"], is_admin=current_user.get("is_admin", False))
+def me(current_user: dict = Depends(get_current_user), db: Session = Depends(get_db)):
+    user = db.scalar(select(User).where(User.username == current_user["sub"]))
+    return MeResponse(
+        username=current_user["sub"],
+        is_admin=current_user.get("is_admin", False),
+        handicap=user.handicap if user else None,
+    )

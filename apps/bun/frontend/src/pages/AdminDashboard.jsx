@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../utils/api'
+import CourseEditorModal from '../components/CourseEditorModal'
 
 const iowanStack = '"Iowan Old Style", "Palatino Linotype", "URW Palladio L", P052, serif'
 const latoStack = "'Lato', sans-serif"
@@ -18,6 +19,11 @@ export default function AdminDashboard() {
   const [membersLoading, setMembersLoading] = useState(false)
   const [removing, setRemoving] = useState(null)
 
+  const [courses, setCourses] = useState([])
+  const [coursesLoading, setCoursesLoading] = useState(false)
+  const [showCourseEditor, setShowCourseEditor] = useState(false)
+  const [deletingCourse, setDeletingCourse] = useState(null)
+
   const fetchTokens = useCallback(async () => {
     setTokensLoading(true)
     try { setTokens(await api.listTokens()) } finally { setTokensLoading(false) }
@@ -26,6 +32,11 @@ export default function AdminDashboard() {
   const fetchMembers = useCallback(async () => {
     setMembersLoading(true)
     try { setMembers(await api.listMembers()) } finally { setMembersLoading(false) }
+  }, [])
+
+  const fetchCourses = useCallback(async () => {
+    setCoursesLoading(true)
+    try { setCourses(await api.listCourses()) } finally { setCoursesLoading(false) }
   }, [])
 
   useEffect(() => {
@@ -45,6 +56,7 @@ export default function AdminDashboard() {
         setMounted(true)
         fetchTokens()
         fetchMembers()
+        fetchCourses()
       })
       .catch(() => {
         if (cancelled) return
@@ -52,7 +64,19 @@ export default function AdminDashboard() {
         navigate('/tigris-silvae', { replace: true })
       })
     return () => { cancelled = true }
-  }, [navigate, fetchTokens, fetchMembers])
+  }, [navigate, fetchTokens, fetchMembers, fetchCourses])
+
+  const handleDeleteCourse = async (courseId) => {
+    setDeletingCourse(courseId)
+    try {
+      await api.deleteCourse(courseId)
+      setCourses(c => c.filter(x => x.id !== courseId))
+    } catch (e) {
+      alert(e.message)
+    } finally {
+      setDeletingCourse(null)
+    }
+  }
 
   const handleGenerateToken = async () => {
     const token = await api.generateToken()
@@ -195,7 +219,53 @@ export default function AdminDashboard() {
           )}
         </div>
 
+        {/* ── Courses ── */}
+        <div className="flex flex-col gap-4" style={fadeIn(0.35)}>
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-stone-400 tracking-widest uppercase">Banen</span>
+            <button
+              onClick={() => setShowCourseEditor(true)}
+              className="text-xs text-stone-500 border border-stone-300 px-3 py-1 hover:bg-stone-800 hover:text-stone-100 hover:border-stone-800 transition-colors tracking-widest uppercase"
+            >
+              Toevoegen
+            </button>
+          </div>
+
+          {coursesLoading ? (
+            <p className="text-xs text-stone-400 text-center">Loading…</p>
+          ) : courses.length === 0 ? (
+            <p className="text-xs text-stone-400 text-center">No courses yet</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {courses.map(c => (
+                <div
+                  key={c.id}
+                  className="flex items-center justify-between gap-2 py-2 border-b border-stone-200"
+                >
+                  <span className="text-xs text-stone-700 tracking-wide truncate min-w-0">
+                    {c.name} <span className="text-stone-400">· par {c.par_total}</span>
+                  </span>
+                  <button
+                    onClick={() => handleDeleteCourse(c.id)}
+                    disabled={deletingCourse === c.id}
+                    className="shrink-0 text-xs text-stone-400 hover:text-red-400 transition-colors tracking-widest uppercase disabled:opacity-40"
+                  >
+                    {deletingCourse === c.id ? '…' : 'Delete'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
       </div>
+
+      {showCourseEditor && (
+        <CourseEditorModal
+          onClose={() => setShowCourseEditor(false)}
+          onCreated={(course) => setCourses(c => [...c, course])}
+        />
+      )}
     </main>
   )
 }
