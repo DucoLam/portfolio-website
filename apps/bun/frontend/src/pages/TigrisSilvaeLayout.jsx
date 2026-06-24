@@ -22,6 +22,7 @@ export default function TigrisSilvaeLayout() {
   const [user, setUser]             = useState(null)
   const [ready, setReady]           = useState(false)
   const [barVisible, setBarVisible] = useState(false)
+  const [menuOpen, setMenuOpen]     = useState(false)
 
   // Sliding indicator
   const navRef      = useRef(null)
@@ -88,6 +89,9 @@ export default function TigrisSilvaeLayout() {
     return () => window.removeEventListener('resize', recalc)
   }, [location.pathname])
 
+  // Close the mobile menu whenever the route changes
+  useEffect(() => { setMenuOpen(false) }, [location.pathname])
+
   const handleLogout = () => {
     localStorage.removeItem('token')
     navigate('/tigris-silvae', { replace: true })
@@ -107,7 +111,7 @@ export default function TigrisSilvaeLayout() {
         }}
       >
         <div
-          className="flex items-center px-8 gap-8 max-w-5xl mx-auto"
+          className="flex items-center px-6 sm:px-8 gap-6 sm:gap-8 max-w-5xl mx-auto"
           style={{ height: BAR_HEIGHT }}
         >
 
@@ -119,10 +123,10 @@ export default function TigrisSilvaeLayout() {
             Tigris Silvae
           </span>
 
-          {/* Nav — position relative so indicator can anchor to it */}
+          {/* Desktop nav — position relative so indicator can anchor to it */}
           <nav
             ref={navRef}
-            className="relative flex items-center gap-8 overflow-x-auto flex-1 h-full"
+            className="relative hidden sm:flex items-center gap-8 overflow-x-auto flex-1 h-full"
             style={{ scrollbarWidth: 'none' }}
           >
             {navItems.map(({ label, to }) => (
@@ -158,8 +162,8 @@ export default function TigrisSilvaeLayout() {
             )}
           </nav>
 
-          {/* Right — admin + sign out */}
-          <div className="flex items-center gap-6 shrink-0">
+          {/* Desktop right — admin + sign out */}
+          <div className="hidden sm:flex items-center gap-6 shrink-0">
             {user?.is_admin && (
               <button
                 onClick={() => navigate('/admin')}
@@ -176,6 +180,61 @@ export default function TigrisSilvaeLayout() {
             </button>
           </div>
 
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMenuOpen(o => !o)}
+            aria-label="Menu"
+            aria-expanded={menuOpen}
+            className="sm:hidden ml-auto flex flex-col items-center justify-center gap-1.5 w-8 h-8 shrink-0"
+          >
+            <span className="block h-px w-6 bg-stone-700 transition-transform duration-300" style={{ transform: menuOpen ? 'translateY(6.5px) rotate(45deg)' : 'none' }} />
+            <span className="block h-px w-6 bg-stone-700 transition-opacity duration-200" style={{ opacity: menuOpen ? 0 : 1 }} />
+            <span className="block h-px w-6 bg-stone-700 transition-transform duration-300" style={{ transform: menuOpen ? 'translateY(-6.5px) rotate(-45deg)' : 'none' }} />
+          </button>
+
+        </div>
+
+        {/* Mobile dropdown menu */}
+        <div
+          className="sm:hidden overflow-hidden border-t border-stone-200"
+          style={{
+            maxHeight: menuOpen ? '24rem' : 0,
+            borderTopWidth: menuOpen ? 1 : 0,
+            transition: 'max-height 0.4s ease, border-top-width 0.4s ease',
+          }}
+        >
+          <nav className="flex flex-col px-6 py-2">
+            {navItems.map(({ label, to }) => (
+              <NavLink
+                key={to}
+                to={to}
+                onClick={() => setMenuOpen(false)}
+                className={({ isActive }) =>
+                  `py-3 text-sm tracking-widest uppercase border-b border-stone-100 transition-colors ${
+                    isActive ? 'text-stone-800' : 'text-stone-400'
+                  }`
+                }
+              >
+                {label}
+              </NavLink>
+            ))}
+            <div className="flex items-center gap-6 pt-4 pb-1">
+              {user?.is_admin && (
+                <button
+                  onClick={() => { setMenuOpen(false); navigate('/admin') }}
+                  className="text-sm text-stone-400 tracking-widest uppercase"
+                >
+                  Admin
+                </button>
+              )}
+              <button
+                onClick={handleLogout}
+                className="text-sm text-stone-300 tracking-widest uppercase"
+              >
+                Sign Out
+              </button>
+            </div>
+          </nav>
         </div>
       </header>
 
